@@ -89,8 +89,9 @@ export const getAllFriendsApi = () =>
 export const getAllFriendRequestsApi = () =>
   Api.get("/api/friend/fetch_friend_requests");
 // remove from friend
-export const removeFromFriendApi = () =>
-  Api.delete(`/api/friend/remove_friend`, config);
+export const removeFromFriendApi = (friendId) => {
+  Api.delete(`/api/friend/remove_friend/${friendId}`);
+};
 
 // post
 
@@ -202,3 +203,7 @@ export const googleLoginApi = (data) => Api.post("/api/user/google", data);
 // eget by email
 export const getUserByGoogleEmail = (data) =>
   Api.post("/api/user/getGoogleUser", data);
+
+// fetch remove friend
+export const fetchRemoveFriend = (id) =>
+  Api.get(`/api/friend/fetch_remove_friend/${id}`, config);

@@ -34,10 +34,10 @@ const MyFriend = () => {
   };
 
   // Handle remove friend
-  const handleRemoveFriend = async () => {
-    console.log("Removing friend with ID:");
+  const handleRemoveFriend = async (id) => {
+    console.log("Removing friend with ID:" + id);
     try {
-      await removeFromFriendApi();
+      await removeFromFriendApi(id);
       message.success("Friend removed successfully.");
       fetchFriends();
     } catch (error) {
@@ -127,13 +127,13 @@ const MyFriend = () => {
             dataSource={filteredFriends}
             renderItem={(friend) => (
               <List.Item
-                key={friend.id}
+                key={friend._id}
                 actions={[
                   <Button type="primary">Profile</Button>,
                   <Button
                     danger
                     icon={<UserDeleteOutlined />}
-                    onClick={() => handleRemoveFriend(friend.id)}
+                    onClick={() => handleRemoveFriend(friend._id)}
                   >
                     Remove
                   </Button>,

@@ -34,10 +34,12 @@ import {
   fetchNotifications,
   markNotificationAsRead,
   searchUsers,
-  sendFriendRequest,
   sendFriendRequestApi,
+  getUnrequestedUsers,
 } from "../apis/api";
 import io from "socket.io-client";
+import { toast } from "react-toastify";
+import { Navigate, useNavigate } from "react-router-dom";
 
 const { Header } = Layout;
 const { Text } = Typography;
@@ -52,7 +54,10 @@ const UserNavbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [requestInProgress, setRequestInProgress] = useState({});
+  const [peopleData, setPeopleData] = useState([]);
+  const [me, setMe] = useState(null);
+  const navigate = useNavigate();
   // Handle scroll effect
   useEffect(() => {
     const handleScroll = () => {
@@ -120,16 +125,70 @@ const UserNavbar = () => {
       setLoading(false);
     }
   };
+  const isFriend = (id) => {
+    if (!me?.friends) return false;
+
+    return me.friends.some(
+      (friend) =>
+        (friend.requester === id || friend.recipient === id) &&
+        friend.status === "accepted"
+    );
+  };
+  const fetchUsers = async () => {
+    try {
+      const response = await getUnrequestedUsers();
+      const users = response.data.users || [];
+
+      // Filter out the friends from the list
+      const filteredUsers = await users.filter((user) => !isFriend(user._id));
+
+      setPeopleData(filteredUsers);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      toast.error("Failed to fetch user suggestions.");
+      return [];
+    }
+  };
+  const getMe = async () => {
+    try {
+      const response = await getSingleUser();
+      setMe(response.data.user);
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      toast.error("Failed to fetch your profile.");
+      navigate("/login");
+    }
+  };
 
   // Handle sending friend request
   const handleSendFriendRequest = async (recipientId) => {
+    if (requestInProgress[recipientId]) return;
     try {
-      const requesterId = localStorage.getItem("user");
-      await sendFriendRequestApi({ requesterId, recipientId });
-      message.success("Friend request sent!");
+      setRequestInProgress((prev) => ({ ...prev, [recipientId]: true }));
+
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user?.id) {
+        toast.error("Please log in to send friend requests");
+        Navigate("/login");
+        return;
+      }
+
+      const response = await sendFriendRequestApi({
+        requesterId: user.id,
+        recipientId,
+      });
+
+      if (response.data.success) {
+        toast.success("Friend request sent!");
+        await Promise.all([getMe(), fetchUsers()]);
+      } else {
+        toast.error(response.data.message || "Failed to send request");
+      }
     } catch (error) {
       console.error("Error sending friend request:", error);
-      message.error("Failed to send friend request.");
+      toast.error("Failed to send friend request. Please try again.");
+    } finally {
+      setRequestInProgress((prev) => ({ ...prev, [recipientId]: false }));
     }
   };
 

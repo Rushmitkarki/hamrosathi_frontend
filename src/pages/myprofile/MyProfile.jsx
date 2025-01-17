@@ -242,13 +242,11 @@ const MyProfile = () => {
             <div className="flex justify-end space-x-4 pt-6">
               <button
                 type="button"
-                className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
-                onClick={() => {
-                  /* Add password change logic */
-                }}
-              >
-                Change Password
-              </button>
+                // className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
+                // onClick={() => {
+                //   /* Add password change logic */
+                // }}
+              ></button>
               <button
                 type="submit"
                 disabled={loading}

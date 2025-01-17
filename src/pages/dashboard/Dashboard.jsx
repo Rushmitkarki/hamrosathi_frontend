@@ -554,18 +554,18 @@ const Dashboard = () => {
                   marginTop: 16,
                 }}
               >
-                <Avatar
-                  size={32}
-                  src={`http://localhost:5000/profile_pictures/${comment.user?.profilePicture}`}
-                />
                 <div style={{ marginLeft: 8 }}>
+                  <Avatar
+                    size={32}
+                    src={`http://localhost:5000/profile_pictures/${comment.user?.profilePicture}`}
+                  />
                   <Text
                     strong
                   >{`${comment.user?.firstName} ${comment.user?.lastName}: ${comment.comment}`}</Text>
                   <Text type="secondary" style={{ marginLeft: 610 }}>
                     {moment(comment.createdAt).fromNow()}
                   </Text>
-                  <Text style={{ marginTop: 8 }}>{comment.comment}</Text>
+                  {/* <Text style={{ marginTop: 8 }}>{comment.comment}</Text> */}
                 </div>
               </div>
             ))}
