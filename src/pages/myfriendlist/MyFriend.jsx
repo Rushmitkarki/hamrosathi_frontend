@@ -9,14 +9,17 @@ import {
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { getAllFriendsApi, removeFromFriendApi } from "../../apis/api";
+import ProfileModal from "./ProfileModal";
+
 const { Sider, Content } = Layout;
 
 const MyFriend = () => {
   const [searchText, setSearchText] = useState("");
   const [selectedKey, setSelectedKey] = useState("3");
   const navigate = useNavigate();
-
   const [friendsData, setFriendsData] = useState([]);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   // Fetch friends data
   useEffect(() => {
@@ -39,11 +42,21 @@ const MyFriend = () => {
     try {
       await removeFromFriendApi(id);
       message.success("Friend removed successfully.");
-      fetchFriends();
+
+      // Update the friendsData state to remove the deleted friend
+      setFriendsData((prevFriends) =>
+        prevFriends.filter((friend) => friend._id !== id)
+      );
     } catch (error) {
       console.error("Error removing friend:", error);
       message.error("Failed to remove friend.");
     }
+  };
+
+  // Handle profile button click
+  const handleProfileClick = (friend) => {
+    setSelectedUser(friend.friend);
+    setIsModalVisible(true);
   };
 
   const menuItems = [
@@ -129,7 +142,12 @@ const MyFriend = () => {
               <List.Item
                 key={friend._id}
                 actions={[
-                  <Button type="primary">Profile</Button>,
+                  <Button
+                    type="primary"
+                    onClick={() => handleProfileClick(friend)}
+                  >
+                    Profile
+                  </Button>,
                   <Button
                     danger
                     icon={<UserDeleteOutlined />}
@@ -158,6 +176,13 @@ const MyFriend = () => {
           />
         </Card>
       </Content>
+
+      {/* Profile Modal */}
+      <ProfileModal
+        open={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        user={selectedUser}
+      />
     </Layout>
   );
 };

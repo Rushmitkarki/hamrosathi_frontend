@@ -5,6 +5,7 @@ import {
   getSingleUser,
   uploadProfilePictureApi,
 } from "../../apis/api";
+import { toast } from "react-toastify";
 
 const MyProfile = () => {
   const [loading, setLoading] = useState(false);
@@ -91,6 +92,7 @@ const MyProfile = () => {
       editUserProfileApi(formData)
         .then((res) => {
           setError(null);
+          toast.success("Profile updated successfully!");
         })
         .catch((err) => {
           console.log(err);
