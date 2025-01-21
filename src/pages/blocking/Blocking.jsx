@@ -47,10 +47,17 @@ const Blocking = () => {
       await unblockFriend(friendId);
       message.success("User unblocked successfully!");
 
-      // Update the blockedUsers state to remove the unblocked user
-      setBlockedUsers((prevUsers) =>
-        prevUsers.filter((user) => user._id !== friendId)
-      );
+      fetchBlockedUsers()
+        .then((response) => {
+          setBlockedUsers(response.data || []);
+        })
+        .catch((error) => {
+          console.error("Error fetching blocked users:", error);
+          message.error("Failed to fetch blocked users.");
+        })
+        .finally(() => {
+          setLoading(false);
+        });
     } catch (error) {
       console.error("Error unblocking user:", error);
       message.error("Failed to unblock user.");
@@ -146,7 +153,8 @@ const Blocking = () => {
                             : "/assets/images/default_profile.png"
                         }
                       />
-                    }ss
+                    }
+                    ss
                     title={`${user.recipient.firstName} ${user.recipient.lastName}`}
                     description={`Blocked since ${new Date(
                       user.updatedAt

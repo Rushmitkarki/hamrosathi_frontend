@@ -60,10 +60,13 @@ const MyFriend = () => {
       await removeFromFriendApi(id);
       message.success("Friend removed successfully.");
 
-      // Update the friendsData state to remove the deleted friend
-      setFriendsData((prevFriends) =>
-        prevFriends.filter((friend) => friend._id !== id)
-      );
+      getAllFriendsApi()
+        .then((response) => {
+          setFriendsData(response.data || []);
+        })
+        .catch((error) => {
+          console.error("Error fetching friends:", error);
+        });
     } catch (error) {
       console.error("Error removing friend:", error);
       message.error("Failed to remove friend.");
@@ -89,10 +92,13 @@ const MyFriend = () => {
         await blockFriend(userToBlock);
         message.success("User blocked successfully!");
 
-        // Update the friendsData state to remove the blocked friend
-        setFriendsData((prevFriends) =>
-          prevFriends.filter((friend) => friend.friend._id !== userToBlock)
-        );
+        getAllFriendsApi()
+          .then((response) => {
+            setFriendsData(response.data || []);
+          })
+          .catch((error) => {
+            console.error("Error fetching friends:", error);
+          });
       } catch (error) {
         console.error("Error blocking user:", error);
         message.error("Failed to block user. Please try again.");
