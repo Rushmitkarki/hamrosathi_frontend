@@ -4,7 +4,6 @@ import { Card, Button, List, Avatar, Typography } from "antd";
 const { Title } = Typography;
 
 const Blocking = () => {
-  // Dummy data for blocked users
   const blockedUsers = [
     {
       id: 1,
