@@ -207,3 +207,15 @@ export const getUserByGoogleEmail = (data) =>
 // fetch remove friend
 export const fetchRemoveFriend = (id) =>
   Api.get(`/api/friend/fetch_remove_friend/${id}`, config);
+
+// block friend
+export const blockFriend = (friendId) =>
+  Api.put(`/api/friend/block/${friendId}`);
+
+// unblock friend
+export const unblockFriend = (friendId) =>
+  Api.put(`/api/friend/unblock_friend/${friendId}`);
+
+// fetch blocked users
+export const fetchBlockedUsers = () =>
+  Api.get("/api/friend/fetch_block_users", config);

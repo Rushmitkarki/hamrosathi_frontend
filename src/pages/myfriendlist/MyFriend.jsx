@@ -1,14 +1,29 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Menu, Input, List, Avatar, Button, Card, message } from "antd";
+import {
+  Layout,
+  Menu,
+  Input,
+  List,
+  Avatar,
+  Button,
+  Card,
+  message,
+  Modal,
+} from "antd";
 import {
   SearchOutlined,
   UserOutlined,
   UserAddOutlined,
   UserDeleteOutlined,
   LockOutlined,
+  StopOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
-import { getAllFriendsApi, removeFromFriendApi } from "../../apis/api";
+import {
+  getAllFriendsApi,
+  removeFromFriendApi,
+  blockFriend,
+} from "../../apis/api";
 import ProfileModal from "./ProfileModal";
 
 const { Sider, Content } = Layout;
@@ -20,6 +35,8 @@ const MyFriend = () => {
   const [friendsData, setFriendsData] = useState([]);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [isBlockModalVisible, setIsBlockModalVisible] = useState(false);
+  const [userToBlock, setUserToBlock] = useState(null);
 
   // Fetch friends data
   useEffect(() => {
@@ -57,6 +74,39 @@ const MyFriend = () => {
   const handleProfileClick = (friend) => {
     setSelectedUser(friend.friend);
     setIsModalVisible(true);
+  };
+
+  // Handle block button click
+  const handleBlockClick = (friend) => {
+    setUserToBlock(friend._id);
+    setIsBlockModalVisible(true);
+  };
+
+  // Handle block confirmation
+  const handleBlockConfirm = async () => {
+    if (userToBlock) {
+      try {
+        await blockFriend(userToBlock);
+        message.success("User blocked successfully!");
+
+        // Update the friendsData state to remove the blocked friend
+        setFriendsData((prevFriends) =>
+          prevFriends.filter((friend) => friend.friend._id !== userToBlock)
+        );
+      } catch (error) {
+        console.error("Error blocking user:", error);
+        message.error("Failed to block user. Please try again.");
+      } finally {
+        setIsBlockModalVisible(false);
+        setUserToBlock(null);
+      }
+    }
+  };
+
+  // Handle block modal cancel
+  const handleBlockCancel = () => {
+    setIsBlockModalVisible(false);
+    setUserToBlock(null);
   };
 
   const menuItems = [
@@ -155,6 +205,12 @@ const MyFriend = () => {
                   >
                     Remove
                   </Button>,
+                  <Button
+                    icon={<StopOutlined />}
+                    onClick={() => handleBlockClick(friend)}
+                  >
+                    Block
+                  </Button>,
                 ]}
                 style={{ padding: "12px" }}
               >
@@ -183,6 +239,18 @@ const MyFriend = () => {
         onCancel={() => setIsModalVisible(false)}
         user={selectedUser}
       />
+
+      {/* Block Confirmation Modal */}
+      <Modal
+        title="Block User"
+        visible={isBlockModalVisible}
+        onOk={handleBlockConfirm}
+        onCancel={handleBlockCancel}
+        okText="Block"
+        cancelText="Cancel"
+      >
+        <p>Are you sure you want to block this user?</p>
+      </Modal>
     </Layout>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Menu, Card, Button, Typography, Row, Col } from "antd";
+import { Layout, Menu, Card, Button, Typography, Row, Col, Modal } from "antd";
 import {
   UserAddOutlined,
   CloseOutlined,
@@ -13,6 +13,7 @@ import {
   getSingleUser,
   getUnrequestedUsers,
   sendFriendRequestApi,
+  blockFriend,
 } from "../../apis/api";
 import { toast } from "react-toastify";
 
@@ -24,6 +25,8 @@ const FriendSuggestion = () => {
   const [me, setMe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [requestInProgress, setRequestInProgress] = useState({});
+  const [isBlockModalVisible, setIsBlockModalVisible] = useState(false);
+  const [userToBlock, setUserToBlock] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -127,6 +130,32 @@ const FriendSuggestion = () => {
     }
   };
 
+  const showBlockModal = (userId) => {
+    setUserToBlock(userId);
+    setIsBlockModalVisible(true);
+  };
+
+  const handleBlockConfirm = async () => {
+    if (userToBlock) {
+      try {
+        await blockFriend(userToBlock);
+        toast.success("User blocked successfully!");
+        await Promise.all([getMe(), fetchUsers()]);
+      } catch (error) {
+        console.error("Error blocking user:", error);
+        toast.error("Failed to block user. Please try again.");
+      } finally {
+        setIsBlockModalVisible(false);
+        setUserToBlock(null);
+      }
+    }
+  };
+
+  const handleBlockCancel = () => {
+    setIsBlockModalVisible(false);
+    setUserToBlock(null);
+  };
+
   const menuItems = [
     {
       key: "1",
@@ -225,7 +254,10 @@ const FriendSuggestion = () => {
                           ? "Accept Request"
                           : "Add Friend"}
                       </Button>
-                      <Button icon={<CloseOutlined />} />
+                      <Button
+                        icon={<CloseOutlined />}
+                        onClick={() => showBlockModal(user._id)}
+                      />
                     </div>
                   </Card>
                 </Col>
